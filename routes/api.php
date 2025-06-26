@@ -16,15 +16,27 @@ use App\Http\Controllers\SellerController;
 |
 */
 
-// Admin Routes
+// Public Routes (No Authentication Required)
 Route::post('/admin/login', [AdminController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/admin/sellers', [AdminController::class, 'createSeller']);
-Route::middleware('auth:sanctum')->get('/admin/sellers', [AdminController::class, 'listSellers']);
 Route::post('/seller/login', [AdminController::class, 'sellerLogin']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Protected Routes (Authentication Required)
+Route::middleware('auth:sanctum')->group(function () {
+    
+    // Admin Routes
+    Route::prefix('admin')->group(function () {
+        Route::get('/sellers', [AdminController::class, 'listSellers']);
+        Route::post('/sellers', [AdminController::class, 'createSeller']);
+    });
+    
+    // Seller Routes
+    Route::prefix('seller')->group(function () {
+        Route::post('/products', [SellerController::class, 'addProduct']);
+        Route::delete('/products/{id}', [SellerController::class, 'deleteProduct']);
+    });
+    
+    // User Info Route
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 });
-
-Route::middleware('auth:sanctum')->post('/seller/products', [SellerController::class, 'addProduct']);
-Route::middleware('auth:sanctum')->delete('/seller/products/{id}', [SellerController::class, 'deleteProduct']);

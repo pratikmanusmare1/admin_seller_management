@@ -55,7 +55,7 @@ class AdminController extends Controller
             // Validate input
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email',
+                'email' => 'required|email',
                 'mobile_no' => 'required|string|max:20',
                 'country' => 'required|string|max:100',
                 'state' => 'required|string|max:100',
@@ -99,6 +99,7 @@ class AdminController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+        
     }
 
     public function listSellers(Request $request)
@@ -152,8 +153,7 @@ class AdminController extends Controller
         if (!$user || !\Hash::check($request->password, $user->password)) {
             return back()->withErrors(['email' => 'Invalid credentials or not a seller.'])->withInput();
         }
-
-        // Store seller_id in session
+        
         session(['seller_id' => $user->id]);
 
         // Redirect to dashboard
@@ -226,6 +226,7 @@ class AdminController extends Controller
         $user = User::where('email', $request->email)
             ->where('role', 'admin')
             ->first();
+            
 
         if (!$user || !\Hash::check($request->password, $user->password)) {
             return back()->withErrors(['email' => 'Invalid credentials or not an admin.'])->withInput();
